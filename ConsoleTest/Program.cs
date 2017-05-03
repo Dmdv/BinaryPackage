@@ -42,7 +42,7 @@ namespace ConsoleTest
             
             var list1 = protocolFile.ReadAll().ToList();
 
-            var protocol = protocolFile.ReadAll().First();
+            var protocol = protocolFile.ReadAll().FirstOrDefault();
 
             var findAll = protocolFile.FindAll(x => x.Body.Text == "Sample Text 2").ToList();
 
