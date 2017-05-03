@@ -4,7 +4,7 @@ using BinaryPackage.Protocol;
 
 namespace BinaryPackage
 {
-    public class ProtocolFile<TMessage> where TMessage : IBinary
+    public class ProtocolFile<TMessage> where TMessage : IProtocol
     {
         public ProtocolFile(IProtocolSerializer<TMessage> serializer)
         {

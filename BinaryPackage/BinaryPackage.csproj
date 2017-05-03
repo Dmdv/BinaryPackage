@@ -43,7 +43,7 @@
     <Compile Include="Extensions\BinaryReaderExtensions.cs" />
     <Compile Include="Protocol\IProtocolSerializer.cs" />
     <Compile Include="Protocol\Protocol.cs" />
-    <Compile Include="IBinary.cs" />
+    <Compile Include="IProtocol.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="Protocol\ProtocolSerializer.cs" />

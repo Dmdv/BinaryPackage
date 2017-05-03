@@ -2,7 +2,7 @@
 
 namespace BinaryPackage.Protocol
 {
-    public class Protocol : IBinary
+    public class Protocol : IProtocol
     {
         public Protocol()
         {
