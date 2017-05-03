@@ -1,21 +1,26 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using BinaryPackage.Protocol;
 
 namespace BinaryPackage
 {
     public class ProtocolFile<TMessage> where TMessage : IProtocol
     {
-        public ProtocolFile(IProtocolSerializer<TMessage> serializer)
+        private readonly string _path;
+
+        public ProtocolFile(string path, IProtocolSerializer<TMessage> serializer)
         {
+            _path = path;
             Serializer = serializer;
         }
         
         public IProtocolSerializer<TMessage> Serializer { get; private set; }
 
-        public void Write(string path, IEnumerable<TMessage> messages)
+        public void Write(params TMessage[] messages)
         {
-            using (var fileStream = File.OpenWrite(path))
+            using (var fileStream = File.OpenWrite(_path))
             {
                 fileStream.Seek(fileStream.Length, SeekOrigin.Begin);
 
@@ -31,14 +36,19 @@ namespace BinaryPackage
             }
         }
 
-        public IEnumerable<TMessage> Read(string path)
+        public IEnumerable<TMessage> FindAll(Predicate<TMessage> predicate)
         {
-            if (!File.Exists(path))
+            return ReadAll().Where(message => predicate(message));
+        }
+
+        public IEnumerable<TMessage> ReadAll()
+        {
+            if (!File.Exists(_path))
             {
                 yield break;
             }
 
-            using (var fileStream = File.OpenRead(path))
+            using (var fileStream = File.OpenRead(_path))
             {
                 using (var bw = new BinaryReader(fileStream))
                 {
@@ -49,6 +59,14 @@ namespace BinaryPackage
                         yield return protocol;
                     }
                 }
+            }
+        }
+
+        public void Clear()
+        {
+            if (File.Exists(_path))
+            {
+                File.Delete(_path);
             }
         }
     }

@@ -36,15 +36,19 @@ namespace ConsoleTest
                 ProtocolType = ProtocolType.Lignis
             };
 
-            var protocolFile = new ProtocolFile<Protocol>(new ProtocolSerializer());
-
             const string Path = "sample.dat";
 
-            var list1 = protocolFile.Read(Path).ToList();
+            var protocolFile = new ProtocolFile<Protocol>(Path, new ProtocolSerializer());
+            
+            var list1 = protocolFile.ReadAll().ToList();
 
-            protocolFile.Write(Path, new[] {msg1, msg2});
+            var protocol = protocolFile.ReadAll().First();
 
-            var list2 = protocolFile.Read(Path).ToList();
+            var findAll = protocolFile.FindAll(x => x.Body.Text == "Sample Text 2").ToList();
+
+            protocolFile.Write(msg1, msg2);
+
+            var list2 = protocolFile.ReadAll().ToList();
 
             //messageType.ShouldBeEquivalentTo(msg1, options => options.Excluding(x => x.PacketLength));
         }
