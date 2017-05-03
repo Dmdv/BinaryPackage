@@ -4,9 +4,16 @@ using BinaryPackage.Protocol;
 
 namespace BinaryPackage
 {
-    public class BinarySerializer
+    public class ProtocolFile<TMessage> where TMessage : IBinary
     {
-        public void Write(string path, IEnumerable<InformationProtocol> messages)
+        public ProtocolFile(IProtocolSerializer<TMessage> serializer)
+        {
+            Serializer = serializer;
+        }
+        
+        public IProtocolSerializer<TMessage> Serializer { get; private set; }
+
+        public void Write(string path, IEnumerable<TMessage> messages)
         {
             using (var fileStream = File.OpenWrite(path))
             {
@@ -16,7 +23,7 @@ namespace BinaryPackage
                 {
                     foreach (var message in messages)
                     {
-                        bw.WritePacket(message);
+                        Serializer.WritePacket(bw, message);
                     }
 
                     bw.Flush();
@@ -24,7 +31,7 @@ namespace BinaryPackage
             }
         }
 
-        public IEnumerable<InformationProtocol> Read(string path)
+        public IEnumerable<TMessage> Read(string path)
         {
             if (!File.Exists(path))
             {
@@ -35,11 +42,11 @@ namespace BinaryPackage
             {
                 using (var bw = new BinaryReader(fileStream))
                 {
-                    InformationProtocol informationProtocol;
+                    TMessage protocol;
 
-                    while ((informationProtocol = bw.ReadPacket()) != null)
+                    while ((protocol = Serializer.ReadPacket(bw)) != null)
                     {
-                        yield return informationProtocol;
+                        yield return protocol;
                     }
                 }
             }

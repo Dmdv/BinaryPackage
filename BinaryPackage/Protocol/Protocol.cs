@@ -2,8 +2,13 @@
 
 namespace BinaryPackage.Protocol
 {
-    public class InformationProtocol
+    public class Protocol : IBinary
     {
+        public Protocol()
+        {
+            Body = new Message();
+        }
+
         /// <summary>
         /// Идендификационный номер 
         /// </summary>
@@ -27,7 +32,7 @@ namespace BinaryPackage.Protocol
         /// <summary>
         /// Сообщение
         /// </summary>
-        public IBinary Body { get; set; }
+        public Message Body { get; set; }
 
         /// <summary>
         /// Дата/Время

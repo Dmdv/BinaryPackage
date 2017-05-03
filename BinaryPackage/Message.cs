@@ -1,11 +1,13 @@
 using System;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
 
 namespace BinaryPackage
 {
-    [Serializable]
-    public class Message : IBinary
+    /// <summary>
+    /// Serialization inside the type doesn't seem the right idea
+    /// This is just for the sake of example
+    /// </summary>
+    public class Message
     {
         public string Text { get; set; }
 
@@ -13,29 +15,21 @@ namespace BinaryPackage
 
         public byte[] ToByteArray()
         {
-            var binaryFormatter = new BinaryFormatter();
-            using (var stream = new MemoryStream())
-            {
-                binaryFormatter.Serialize(stream, this);
-                return stream.ToArray();
-            }
+            var valueArray = BitConverter.GetBytes(Value);
+            var stringArray = Encoding.UTF8.GetBytes(Text);
+
+            var array = new byte[valueArray.Length + stringArray.Length];
+
+            Buffer.BlockCopy(valueArray, 0, array, 0, valueArray.Length);
+            Buffer.BlockCopy(stringArray, 0, array, valueArray.Length, stringArray.Length);
+
+            return array;
         }
 
-        void IBinary.FromByteArray(byte[] buffer)
+        public void FromByteArray(byte[] buffer)
         {
-            throw new NotImplementedException();
-        }
-
-        public static Message FromByteArray(byte[] buffer)
-        {
-            using (var stream = new MemoryStream())
-            {
-                var binaryFormatter = new BinaryFormatter();
-                stream.Write(buffer, 0, buffer.Length);
-                stream.Seek(0, SeekOrigin.Begin);
-                var obj = binaryFormatter.Deserialize(stream);
-                return obj as Message;
-            }
+            Value = BitConverter.ToInt32(buffer, 0);
+            Text = Encoding.UTF8.GetString(buffer, sizeof(int), buffer.Length - sizeof(int));
         }
     }
 }

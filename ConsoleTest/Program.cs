@@ -10,7 +10,7 @@ namespace ConsoleTest
     {
         private static void Main()
         {
-            var msg1 = new InformationProtocol
+            var msg1 = new Protocol
             {
                 DateTime = DateTime.Now,
                 Body = new Message
@@ -23,7 +23,7 @@ namespace ConsoleTest
                 ProtocolType = ProtocolType.Baikal
             };
 
-            var msg2 = new InformationProtocol
+            var msg2 = new Protocol
             {
                 DateTime = DateTime.Now.AddDays(1),
                 Body = new Message
@@ -36,15 +36,15 @@ namespace ConsoleTest
                 ProtocolType = ProtocolType.Lignis
             };
 
-            var ser = new BinarySerializer();
+            var protocolFile = new ProtocolFile<Protocol>(new ProtocolSerializer());
 
             const string Path = "sample.dat";
 
-            var list1 = ser.Read(Path).ToList();
+            var list1 = protocolFile.Read(Path).ToList();
 
-            ser.Write(Path, new[] {msg1, msg2});
+            protocolFile.Write(Path, new[] {msg1, msg2});
 
-            var list2 = ser.Read(Path).ToList();
+            var list2 = protocolFile.Read(Path).ToList();
 
             //messageType.ShouldBeEquivalentTo(msg1, options => options.Excluding(x => x.PacketLength));
         }

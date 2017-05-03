@@ -3,9 +3,9 @@ using System.IO;
 
 namespace BinaryPackage.Protocol
 {
-    public static class InformationProtocolSerializer
+    public class ProtocolSerializer : IProtocolSerializer<Protocol>
     {
-        public static void WritePacket(this BinaryWriter bw, InformationProtocol message)
+        public void WritePacket(BinaryWriter bw, Protocol message)
         {
             bw.Write(message.Id.ToByteArray());
             bw.Write(BitConverter.GetBytes(message.DateTime.ToBinary()));
@@ -16,26 +16,27 @@ namespace BinaryPackage.Protocol
             bw.Write(body);
         }
 
-        public static InformationProtocol ReadPacket(this BinaryReader bw)
+        public Protocol ReadPacket(BinaryReader bw)
         {
             if (!bw.BaseStream.CanRead || bw.BaseStream.Position == bw.BaseStream.Length)
             {
                 return null;
             }
 
-            var informationProtocol = new InformationProtocol
+            const int GuidLength = 16;
+
+            var protocol = new Protocol
             {
-                Id = new Guid(bw.ReadBytes(16)),
+                Id = new Guid(bw.ReadBytes(GuidLength)),
                 DateTime = DateTime.FromBinary(bw.ReadInt64()),
                 InformationType = (TypeInformation)bw.ReadByte(),
                 ProtocolType = (ProtocolType)bw.ReadByte(),
                 PacketLength = bw.ReadInt32()
             };
 
-            informationProtocol.Body =
-                Message.FromByteArray(bw.ReadBytes(informationProtocol.PacketLength));
+            protocol.Body.FromByteArray(bw.ReadBytes(protocol.PacketLength));
 
-            return informationProtocol;
+            return protocol;
         }
     }
 }
