@@ -5,9 +5,10 @@ using System.Runtime.Serialization.Formatters.Binary;
 namespace BinaryPackage
 {
     [Serializable]
-    public class SampleMessage : IRawData
+    public class Message : IBinary
     {
         public string Text { get; set; }
+
         public int Value { get; set; }
 
         public byte[] ToByteArray()
@@ -20,7 +21,12 @@ namespace BinaryPackage
             }
         }
 
-        public static SampleMessage FromByteArray(byte[] buffer)
+        void IBinary.FromByteArray(byte[] buffer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static Message FromByteArray(byte[] buffer)
         {
             using (var stream = new MemoryStream())
             {
@@ -28,7 +34,7 @@ namespace BinaryPackage
                 stream.Write(buffer, 0, buffer.Length);
                 stream.Seek(0, SeekOrigin.Begin);
                 var obj = binaryFormatter.Deserialize(stream);
-                return obj as SampleMessage;
+                return obj as Message;
             }
         }
     }

@@ -1,8 +1,8 @@
 using System.IO;
 
-namespace BinaryPackage
+namespace BinaryPackage.Extensions
 {
-    public static class Extensions
+    public static class BinaryReaderExtensions
     {
         public static byte[] ReadAllBytes(this BinaryReader reader)
         {

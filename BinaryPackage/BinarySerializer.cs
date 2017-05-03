@@ -1,39 +1,46 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.IO;
+using BinaryPackage.Protocol;
 
 namespace BinaryPackage
 {
     public class BinarySerializer
     {
-        public void Write(string path, MessageType message)
+        public void Write(string path, IEnumerable<InformationProtocol> messages)
         {
             using (var fileStream = File.OpenWrite(path))
             {
+                fileStream.Seek(fileStream.Length, SeekOrigin.Begin);
+
                 using (var bw = new BinaryWriter(fileStream))
                 {
-                    bw.Write(message.Id.ToByteArray());
-                    bw.Write(BitConverter.GetBytes(message.DateTime.ToBinary()));
-                    bw.Write(Convert.ToByte(message.IsInput));
-                    bw.Write(message.Data.ToByteArray());
+                    foreach (var message in messages)
+                    {
+                        bw.WritePacket(message);
+                    }
 
                     bw.Flush();
                 }
             }
         }
 
-        public MessageType Read(string path)
+        public IEnumerable<InformationProtocol> Read(string path)
         {
+            if (!File.Exists(path))
+            {
+                yield break;
+            }
+
             using (var fileStream = File.OpenRead(path))
             {
                 using (var bw = new BinaryReader(fileStream))
                 {
-                    return new MessageType
+                    InformationProtocol informationProtocol;
+
+                    while ((informationProtocol = bw.ReadPacket()) != null)
                     {
-                        Id = new Guid(bw.ReadBytes(16)),
-                        DateTime = DateTime.FromBinary(bw.ReadInt64()),
-                        IsInput = bw.ReadByte(),
-                        Data = SampleMessage.FromByteArray(bw.ReadAllBytes())
-                    };
+                        yield return informationProtocol;
+                    }
                 }
             }
         }

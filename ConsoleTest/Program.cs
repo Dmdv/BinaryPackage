@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using BinaryPackage;
+using BinaryPackage.Protocol;
 using FluentAssertions;
 
 namespace ConsoleTest
@@ -8,28 +10,43 @@ namespace ConsoleTest
     {
         private static void Main()
         {
-            var sample = new SampleMessage
-            {
-                Text = "Sample Text",
-                Value = 100
-            };
-
-            var message = new MessageType
+            var msg1 = new InformationProtocol
             {
                 DateTime = DateTime.Now,
-                Data = sample,
+                Body = new Message
+                {
+                    Text = "Sample Text",
+                    Value = 100
+                },
                 Id = Guid.NewGuid(),
-                IsInput = 1
+                InformationType = TypeInformation.Incoming,
+                ProtocolType = ProtocolType.Baikal
+            };
+
+            var msg2 = new InformationProtocol
+            {
+                DateTime = DateTime.Now.AddDays(1),
+                Body = new Message
+                {
+                    Text = "Sample Text 2",
+                    Value = 200
+                },
+                Id = Guid.NewGuid(),
+                InformationType = TypeInformation.Outcoming,
+                ProtocolType = ProtocolType.Lignis
             };
 
             var ser = new BinarySerializer();
 
             const string Path = "sample.dat";
 
-            ser.Write(Path, message);
-            var messageType = ser.Read(Path);
+            var list1 = ser.Read(Path).ToList();
 
-            messageType.ShouldBeEquivalentTo(message);
+            ser.Write(Path, new[] {msg1, msg2});
+
+            var list2 = ser.Read(Path).ToList();
+
+            //messageType.ShouldBeEquivalentTo(msg1, options => options.Excluding(x => x.PacketLength));
         }
     }
 }
